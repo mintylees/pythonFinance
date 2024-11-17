@@ -6,3 +6,21 @@ https://www.schiffsovereign.com/cost-of-living-index/
 
 https://quant.stackexchange.com/questions/79332/get-bonds-data-in-python
 
+
+----
+# Import the libraries
+
+import numpy as np
+import pandas as pd
+import pandas_datareader as pdr
+import datetime
+
+# Time range
+
+start = datetime.date(2000, 1, 1)
+end = datetime.date.today()
+
+# Import the data
+
+yields = ['DGS3MO', 'DGS1', 'DGS10']
+df_yields = pdr.DataReader(yields, 'fred', start, end)
