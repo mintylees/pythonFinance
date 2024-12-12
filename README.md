@@ -1,3 +1,5 @@
+https://www.brightcove.com/en/why-brightcove/?utm_type=player
+
 https://tradingeconomics.com/commodity/silver
 
 https://www.pybroker.com/en/latest/
