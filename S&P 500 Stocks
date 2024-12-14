@@ -1,0 +1,57 @@
+import numpy as np # linear algebra
+!pip install yfinance
+import yfinance as yf
+import pandas as pd
+import requests
+from bs4 import BeautifulSoup
+
+html_data=requests.get('https://en.wikipedia.org/wiki/List_of_S%26P_500_companies').text
+beautiful_soup=BeautifulSoup(html_data, "html.parser")
+tables = beautiful_soup.find_all('table')
+len(tables)
+
+S_P_500_companies = pd.DataFrame(columns=["Symbol","Security","Sector","Sub-Industry","Headquarters Location","Date first added","CIK","Founded"])
+
+for row in tables[0].tbody.find_all("tr"):
+    col = row.find_all("td")
+    if (col != []):
+        Symbol = col[0].text.strip().replace('\n','')
+        Security = col[1].text.strip().replace('\n','')
+        Sector = col[3].text.strip().replace('\n','')
+        Sub_Industry = col[4].text.strip().replace('\n','')
+        Headquarters_Location = col[5].text.strip().replace('\n','')
+        Date_first = col[6].text.strip().replace('\n','')
+        CIK = col[7].text.strip().replace('\n','')
+        Founded = col[8].text.strip().replace('\n','')
+        S_P_500_companies = S_P_500_companies.append({"Symbol":Symbol, "Security":Security, "Sector":Sector, "Sub-Industry":Sub_Industry,
+        "Headquarters Location":Headquarters_Location,"Date first added":Date_first,"CIK":CIK,"Founded":Founded}, ignore_index=True)
+
+S_P_500_companies.head()
+
+Symbols_data= {} # empty dictionary
+for Symbol in Symbols:
+    ticker_object = yf.Ticker(Symbol)
+
+    #convert info() output from dictionary to dataframe
+    temp = pd.DataFrame.from_dict(ticker_object.info, orient="index")
+    temp.reset_index(inplace=True)
+    temp.columns = ["Attribute", "Recent"]
+    temp['Symbol']=Symbol
+    # add (ticker, dataframe) to main dictionary
+    Symbols_data[Symbol] = temp
+combined_data = pd.concat(Symbols_data)
+combined_data
+
+s=combined_data.pivot(index='Symbol', columns='Attribute', values='Recent')
+s.reset_index(inplace=True)
+s.columns.name=None
+SP500Components=s.set_index('Symbol')
+SP500Components.head()
+
+import os
+os.chdir('/kaggle/working')
+SP500Components.to_csv('/kaggle/working/S&P500_Components.csv')
+S_P_500_companies.to_csv('/kaggle/working/S&P500_Companies.csv')
+
+
+
